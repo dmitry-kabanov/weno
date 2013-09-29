@@ -3,51 +3,39 @@ import matplotlib.pyplot as plt
 
 def rhs(u):
     # WENO Reconstruction
-    for i in range(0, N):
-        if i > 0 and i < N - 1:
-            u_right_boundary_approx[i][0] = 0.5 * u[i] + 0.5 * u[i + 1]
-            u_right_boundary_approx[i][1] = -0.5 * u[i - 1] + 1.5 * u[i]
-            u_left_boundary_approx[i][0] = 1.5 * u[i] - 0.5 * u[i + 1]
-            u_left_boundary_approx[i][1] = 0.5 * u[i - 1] + 0.5 * u[i]
+    # Approximations for inner cells 0 < i < N-1.
+    u_right_boundary_approx[0][1:-1] = 0.5 * u[1:-1] + 0.5 * u[2:]
+    u_right_boundary_approx[1][1:-1] = -0.5 * u[0:-2] + 1.5 * u[1:-1]
+    u_left_boundary_approx[0][1:-1] = 1.5 * u[1:-1] - 0.5 * u[2:]
+    u_left_boundary_approx[1][1:-1] = 0.5 * u[0:-2] + 0.5 * u[1:-1]
 
-        if i == 0:
-            u_right_boundary_approx[0][0] = 0.5 * u[0] + 0.5 * u[1]
-            u_right_boundary_approx[0][1] = -0.5 * u[N - 1] + 1.5 * u[0]
-            u_left_boundary_approx[0][0] = 1.5 * u[0] - 0.5 * u[1]
-            u_left_boundary_approx[0][1] = 0.5 * u[N - 1] + 0.5 * u[0]
+    # Approximations for cell i = 0 (the leftmost cell).
+    u_right_boundary_approx[0][0] = 0.5 * u[0] + 0.5 * u[1]
+    u_right_boundary_approx[1][0]= -0.5 * u[N - 1] + 1.5 * u[0]
+    u_left_boundary_approx[0][0] = 1.5 * u[0] - 0.5 * u[1]
+    u_left_boundary_approx[1][0] = 0.5 * u[N - 1] + 0.5 * u[0]
 
-        if i == (N - 1):
-            u_right_boundary_approx[N - 1][0] = 0.5 * u[N - 1] + 0.5 * u[0]
-            u_right_boundary_approx[N - 1][1] = -0.5 * u[N - 2] + 1.5 * u[N - 1]
-            u_left_boundary_approx[N - 1][0] = 1.5 * u[N - 1] - 0.5 * u[0]
-            u_left_boundary_approx[N - 1][1] = 0.5 * u[N - 2] + 0.5 * u[N - 1]
-    for i in range(0, N):
-        if 0 < i < (N - 1):
-            beta0 = (u[i + 1] - u[i]) ** 2
-            beta1 = (u[i] - u[i - 1]) ** 2
+    # Approximations for cell i = N-1 (the rightmost cell).
+    u_right_boundary_approx[0][N - 1] = 0.5 * u[N - 1] + 0.5 * u[0]
+    u_right_boundary_approx[1][N - 1] = -0.5 * u[N - 2] + 1.5 * u[N - 1]
+    u_left_boundary_approx[0][N - 1] = 1.5 * u[N - 1] - 0.5 * u[0]
+    u_left_boundary_approx[1][N - 1] = 0.5 * u[N - 2] + 0.5 * u[N - 1]
 
-        if i == 0:
-            beta0 = (u[1] - u[0]) ** 2
-            beta1 = (u[0] - u[N - 1]) ** 2
-
-        if i == (N - 1):
-            beta0 = (u[0] - u[N - 1]) ** 2
-            beta1 = (u[N - 1] - u[N - 2]) ** 2
-
-        alpha0 = D0 / ((EPS + beta0) ** 2)
-        alpha1 = D1 / ((EPS + beta1) ** 2)
-
-        sum_alpha = alpha0 + alpha1
-
-        omega0 = alpha0 / sum_alpha
-        omega1 = alpha1 / sum_alpha
-
-        u_right_boundary[i] = omega0 * u_right_boundary_approx[i][0] + \
-                              omega1 * u_right_boundary_approx[i][1]
-
-        u_left_boundary[i] = omega0 * u_left_boundary_approx[i][0] + \
-                             omega1 * u_left_boundary_approx[i][1]
-
+    beta0[1:-2] = (u[2:-1] - u[1:-2]) ** 2
+    beta1[1:-2] = (u[1:-2] - u[0:-3]) ** 2
+    beta0[0] = (u[1] - u[0]) ** 2
+    beta1[0] = (u[0] - u[N - 1]) ** 2
+    beta0[-1] = (u[0] - u[N - 1]) ** 2
+    beta1[-1] = (u[N - 1] - u[N - 2]) ** 2
+    alpha0 = D0 / ((EPS + beta0) ** 2)
+    alpha1 = D1 / ((EPS + beta1) ** 2)
+    sum_alpha = alpha0 + alpha1
+    omega0 = alpha0 / sum_alpha
+    omega1 = alpha1 / sum_alpha
+    u_right_boundary = np.multiply(omega0, u_right_boundary_approx[0][:]) + \
+                       np.multiply(omega1, u_right_boundary_approx[1][:])
+    u_left_boundary = np.multiply(omega0, u_left_boundary_approx[0][:]) + \
+                         np.multiply(omega1, u_left_boundary_approx[1][:])
 
     # Numerical flux calculation.
     fFlux[1:-1] = numflux(u_right_boundary[0:-1], u_left_boundary[1:-1])
@@ -55,11 +43,10 @@ def rhs(u):
     fFlux[N] = numflux(u_right_boundary[N - 1], u_left_boundary[0])
 
     # Right hand side calculation.
-    rhs = np.zeros(N)
-    rhs[:] = fFlux[1:] - fFlux[0:-1]
-    rhs = -rhs / dx
+    rhsValues = fFlux[1:] - fFlux[0:-1]
+    rhsValues = -rhsValues / dx
 
-    return rhs
+    return rhsValues
 
 
 def numflux(a, b):
@@ -124,18 +111,26 @@ for i in range(0, N):
         u0[i] = 0.0
 
 
-u_right_boundary_approx = np.zeros((N, ORDER_OF_SCHEME))
-u_left_boundary_approx = np.zeros((N, ORDER_OF_SCHEME))
+u_right_boundary_approx = np.zeros((ORDER_OF_SCHEME, N))
+u_left_boundary_approx = np.zeros((ORDER_OF_SCHEME, N))
 u_right_boundary = np.zeros(N)
 u_left_boundary = np.zeros(N)
-fFlux = np.zeros(N+1)
+beta0 = np.zeros(N)
+beta1 = np.zeros(N)
+alpha0 = np.zeros(N)
+alpha1 = np.zeros(N)
+sum_alpha = np.zeros(N)
+omega0 = np.zeros(N)
+omega1 = np.zeros(N)
+fFlux = np.zeros(N + 1)
+rhsValues = np.zeros(N)
 
 u_multistage = np.zeros((3, N))
 u_multistage[0] = u0
 
 while t < T:
     u_multistage[1] = u_multistage[0] + dt * rhs(u_multistage[0])
-    u_multistage[2][:] = (3 * u_multistage[0] + u_multistage[1] + dt * rhs(u_multistage[1])) / 4.0
+    u_multistage[2] = (3 * u_multistage[0] + u_multistage[1] + dt * rhs(u_multistage[1])) / 4.0
     u_multistage[0] = (u_multistage[0] + 2.0 * u_multistage[2] + 2.0 * dt * rhs(u_multistage[2])) / 3.0
     t += dt
 
@@ -146,4 +141,4 @@ plt.legend(loc='best')
 plt.ylim([-0.1, 1.1])
 plt.xticks(np.linspace(-1, 1, 11, endpoint=True))
 plt.show()
-# plt.savefig('/home/dima/weno2_advection_T=' + str(T) + '.eps')
+# plt.savefig('/home/dima/weno2_advection_N=' + str(N) + '_T=' + str(T) + '.eps')
