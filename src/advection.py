@@ -45,11 +45,11 @@ b = 1.0
 CHAR_SPEED = 1.0
 T = 4.0
 
-w = weno2.Weno2(a, b, N, T, flux, flux_deriv, max_flux_deriv, CHAR_SPEED)
+w = weno2.Weno2(a, b, N, flux, flux_deriv, max_flux_deriv, CHAR_SPEED)
 x_center = w.get_x_center()
 u0 = initial_condition(x_center)
 
-solution = w.integrate(u0)
+solution = w.integrate(u0, T)
 
 plt.plot(x_center, solution, 'o', label='WENO, $k = 2$')
 plt.plot(x_center, exact_solution(x_center - CHAR_SPEED * T, T), label='Exact')

@@ -1,7 +1,7 @@
 import numpy as np
 
 class Weno2:
-    def __init__(self, left_boundary, right_boundary, ncells, time, flux_callback, flux_deriv_callback, max_flux_deriv_callback, char_speed, cfl_number=0.8, eps=1.0e-6):
+    def __init__(self, left_boundary, right_boundary, ncells, flux_callback, flux_deriv_callback, max_flux_deriv_callback, char_speed, cfl_number=0.8, eps=1.0e-6):
         """
 
         :rtype : Weno2
@@ -9,11 +9,9 @@ class Weno2:
         a = left_boundary
         b = right_boundary
         self.N = ncells
-        self.T = time
         self.dx = (b - a) / (self.N + 0.0)
-        CFL_NUMBER = cfl_number
-        CHAR_SPEED = char_speed
-        self.dt = CFL_NUMBER * self.dx / CHAR_SPEED
+        self.CFL_NUMBER = cfl_number
+        self.CHAR_SPEED = char_speed
         self.t = 0.0
         ORDER_OF_SCHEME = 2
         self.EPS = eps
@@ -44,7 +42,9 @@ class Weno2:
         self.u_multistage = np.zeros((3, self.N))
 
 
-    def integrate(self, u0):
+    def integrate(self, u0, time_final):
+        self.dt = self.CFL_NUMBER * self.dx / self.CHAR_SPEED
+        self.T = time_final
         self.u_multistage[0] = u0
 
         while self.t < self.T:
@@ -90,10 +90,10 @@ class Weno2:
         self.sum_alpha = self.alpha0 + self.alpha1
         self.omega0 = self.alpha0 / self.sum_alpha
         self.omega1 = self.alpha1 / self.sum_alpha
-        self.u_right_boundary = np.multiply(self.omega0, self.u_right_boundary_approx[0][:]) + \
-                           np.multiply(self.omega1, self.u_right_boundary_approx[1][:])
-        self.u_left_boundary = np.multiply(self.omega0, self.u_left_boundary_approx[0][:]) + \
-                          np.multiply(self.omega1, self.u_left_boundary_approx[1][:])
+        self.u_right_boundary = self.omega0 * self.u_right_boundary_approx[0][:] + \
+                           self.omega1 * self.u_right_boundary_approx[1][:]
+        self.u_left_boundary = self.omega0 * self.u_left_boundary_approx[0][:] + \
+                          self.omega1 * self.u_left_boundary_approx[1][:]
 
         # Numerical flux calculation.
         self.fFlux[1:-1] = self.numflux(self.u_right_boundary[0:-1], self.u_left_boundary[1:])
