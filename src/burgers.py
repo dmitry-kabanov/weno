@@ -19,11 +19,6 @@ def initial_condition(x_center):
     return u0
 
 def exact_solution(x, time):
-    x = np.remainder(x, 2.0)
-    for i in range(N):
-        if x[i] >= 1.0:
-            x[i] -= 2.0
-
     u_exact = np.zeros(N)
 
     for i in (range(N)):
@@ -43,7 +38,8 @@ a = -1.0
 b = 1.0
 CHAR_SPEED = 1.0
 CFL_NUMBER = 0.6
-T = 0.3183
+time_breaking = 0.3183
+T = 0.55
 
 w = weno2.Weno2(a, b, N, flux, flux_deriv, max_flux_deriv, CHAR_SPEED, CFL_NUMBER)
 x_center = w.get_x_center()
@@ -53,7 +49,8 @@ solution = u0
 solution = w.integrate(u0, T)
 
 plt.plot(x_center, solution, 'o', label='WENO, $k = 2$')
-plt.plot(x_center, exact_solution(x_center, T), label='Exact')
+if T <= time_breaking:
+    plt.plot(x_center, exact_solution(x_center, T), label='Exact')
 plt.legend(loc='best')
 plt.ylim([-0.5, 1.5])
 plt.xticks(np.linspace(-1, 1, 11, endpoint=True))
