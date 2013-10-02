@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import weno2
+import weno3
 import advection as advec
 
 def plot_advection_solution():
-    plt.plot(x_center, solution, 'o', label='WENO, $k = 2$')
+    plt.plot(x_center, solution, 'o', label='WENO, $k = 3$')
     plt.plot(x_center, advec.exact_solution(x_center - advec.CHAR_SPEED * T, T, N), label='Exact')
     plt.legend(loc='best')
     plt.ylim([-0.1, 1.1])
@@ -19,7 +19,7 @@ a = -1.0
 b = 1.0
 T = 4.0
 
-w = weno2.Weno2(a, b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
+w = weno3.Weno3(a, b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED, CFL_NUMBER)
 x_center = w.get_x_center()
 u0 = advec.initial_condition(x_center)
 
