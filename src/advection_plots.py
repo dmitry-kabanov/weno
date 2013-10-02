@@ -9,13 +9,16 @@ def plot_advection_solution():
     plt.legend(loc='best')
     plt.ylim([-0.1, 1.1])
     plt.xticks(np.linspace(-1, 1, 11, endpoint=True))
-    plt.gca().text(0.02, 0.95, 'time = ' + str(T), transform=plt.gca().transAxes)
+    plt.title('Time = ' + str(T) + ', ncells = ' + str(N) + r', $\nu$ = ' + str(CFL_NUMBER))
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$u$')
     plt.show()
     # plt.savefig('/home/dima/weno2_advection_N=' + str(N) + '_T=' + str(T) + '.eps')
 
 
 N = 160
 a = -1.0
+CFL_NUMBER = 0.8
 b = 1.0
 T = 4.0
 
