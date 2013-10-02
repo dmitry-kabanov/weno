@@ -1,0 +1,20 @@
+backend: GTKCairo
+text.usetex : True
+
+lines.markersize: 3
+
+axes.labelsize: 16
+legend.fontsize: 16
+xtick.labelsize: 16
+ytick.labelsize: 16
+
+font.family: serif
+font.serif: Latin Modern Math
+font.size: 16.0
+
+figure.figsize: 6.0, 4.5
+
+savefig.format: eps
+savefig.bbox: tight
+
+ps.usedistiller: xpdf
