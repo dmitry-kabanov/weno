@@ -6,7 +6,7 @@ for r in range(-1, k):
         print "r = %d, j = %d" % (r, j)
         for m in range(j+1, k+1):
             # print "m = %d" % m
-            sum = 0
+            sumOfProducts = 0
             prod_denom = 1
             for l in range(0, k+1):
                 if l == m:
@@ -23,7 +23,7 @@ for r in range(-1, k):
 
                     prod *= r - q + 1
 
-                sum += prod
+                sumOfProducts += prod
                 prod_denom *= m - l
 
-            print "%f / %f" % (sum, prod_denom)
+            print "%f / %f" % (sumOfProducts, prod_denom)
