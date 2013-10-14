@@ -47,4 +47,4 @@ def animate(i):
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=nFrames, interval=20, blit=True)
 
-anim.save('../../videos/advection_weno3.mp4', fps=30)
+anim.save('../../videos/advection_weno3.mp4', fps=30, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
