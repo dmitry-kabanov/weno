@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as sco
 import weno2
+import bootstrap as bs
 
 
 def flux(val):
@@ -32,6 +33,8 @@ def exact_func(u, x, t):
 def exact_func_prime(u, x, t):
     return -np.pi * t * np.cos(np.pi * (x - u * t)) - 1
 
+bs.bootstrap()
+
 # Number of cells.
 N = 160
 a = -1.0
@@ -54,5 +57,5 @@ if T <= time_breaking:
 plt.legend(loc='best')
 plt.ylim([-0.5, 1.5])
 plt.xticks(np.linspace(-1, 1, 11, endpoint=True))
-plt.show()
-# plt.savefig('/home/dima/weno2_advection_N=' + str(N) + '_T=' + str(T) + '.eps')
+# plt.show()
+plt.savefig(bs.params['images_path'] + '/weno2_burgers_N=' + str(N) + '_T=' + str(T) + '.eps')

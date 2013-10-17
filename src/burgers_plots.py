@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import burgers as b
 import weno3
+import bootstrap as bs
 
 def plot_burgers_solution():
     plt.plot(x_center, solution, 'o', label='WENO, $k = 3$')
@@ -14,7 +15,9 @@ def plot_burgers_solution():
     plt.xlabel(r'$x$')
     plt.ylabel(r'$u$')
     # plt.show()
-    plt.savefig('../../images/weno3_burgers_N=' + str(ncells) + '_T=' + str(T) + '.eps')
+    plt.savefig(bs.params['images_path'] + '/images/weno3_burgers_N=' + str(ncells) + '_T=' + str(T) + '.eps')
+
+bs.bootstrap()
 
 ncells = 640
 left_boundary = -1.0

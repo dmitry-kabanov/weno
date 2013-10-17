@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import weno3
 import advection as advec
+import bootstrap as bs
+
+bs.bootstrap()
 
 N = [80, 160, 320, 640, 1280, 2560]
 a = -1.0
@@ -62,7 +65,7 @@ plt.xlabel(r'$\Delta x$')
 plt.ylabel(r'$L_1$-norm of error')
 plt.legend(loc='upper left')
 # plt.show()
-plt.savefig('../../images/weno3_advection_convergence.eps')
+plt.savefig(bs.params['images_path'] + '/weno3_advection_convergence.eps')
 
 for i in range(0, len(errorsList)):
     print N[i], errorsList[i]

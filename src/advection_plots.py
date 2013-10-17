@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import weno3
 import advection as advec
+import bootstrap as bs
 
 def plot_advection_solution():
     plt.plot(x_center, solution, 'o', label='WENO, $k = 3$')
@@ -13,8 +14,9 @@ def plot_advection_solution():
     plt.xlabel(r'$x$')
     plt.ylabel(r'$u$')
     # plt.show()
-    plt.savefig('../../images/weno3_advection_N=' + str(N) + '_T=' + str(T) + '.eps')
+    plt.savefig(bs.params['images_path'] + '/weno3_advection_N=' + str(N) + '_T=' + str(T) + '.eps')
 
+bs.bootstrap()
 
 N = 640
 a = -1.0

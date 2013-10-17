@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import weno2
 import advection as advec
+import bootstrap as bs
+
+bs.bootstrap()
 
 N = [80, 160, 320, 640, 1280, 2560]
 a = -1.0
