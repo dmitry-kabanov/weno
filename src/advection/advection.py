@@ -35,3 +35,16 @@ def exact_solution_square_wave(x, time, mesh_size):
             u_exact[i] = 1.0
 
     return u_exact
+
+def initial_condition_sine(x_center):
+    return np.sin(np.pi * x_center)
+
+
+def exact_solution_sine(x, time, mesh_size):
+    x = np.remainder(x, 2.0)
+    for i in range(mesh_size):
+        if x[i] >= 1.0:
+            x[i] -= 2.0
+
+    return initial_condition_sine(x)
+
