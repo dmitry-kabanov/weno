@@ -1,4 +1,6 @@
 *.mp4
+config
+images/
 
 *.py[cod]
 
