@@ -11,7 +11,7 @@ def flux_deriv(val):
 def max_flux_deriv(a, b):
     return CHAR_SPEED
 
-def initial_condition(x_center):
+def initial_condition_square_wave(x_center):
     u0 = np.zeros(x_center.size)
 
     for i in range(0, x_center.size):
@@ -22,7 +22,7 @@ def initial_condition(x_center):
 
     return u0
 
-def exact_solution(x, time, mesh_size):
+def exact_solution_square_wave(x, time, mesh_size):
     x = np.remainder(x, 2.0)
     for i in range(mesh_size):
         if x[i] >= 1.0:

@@ -6,7 +6,7 @@ import bootstrap as bs
 
 def plot_advection_solution():
     plt.plot(x_center, solution, 'o', label='WENO, $k = 3$')
-    plt.plot(x_center, advec.exact_solution(x_center - advec.CHAR_SPEED * T, T, N), label='Exact')
+    plt.plot(x_center, advec.exact_solution_square_wave(x_center - advec.CHAR_SPEED * T, T, N), label='Exact')
     plt.legend(loc='best')
     plt.ylim([-0.1, 1.1])
     plt.xticks(np.linspace(-1, 1, 11, endpoint=True))
@@ -26,7 +26,7 @@ T = 0.5
 
 w = weno3.Weno3(a, b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED, CFL_NUMBER)
 x_center = w.get_x_center()
-u0 = advec.initial_condition(x_center)
+u0 = advec.initial_condition_square_wave(x_center)
 
 solution = w.integrate(u0, T)
 plot_advection_solution()

@@ -16,9 +16,9 @@ dxList = []
 for n in N:
     w = weno3.Weno3(a, b, n, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
     x_center = w.get_x_center()
-    u0 = advec.initial_condition(x_center)
+    u0 = advec.initial_condition_square_wave(x_center)
     solution = w.integrate(u0, T)
-    exact = advec.exact_solution(x_center - advec.CHAR_SPEED * T, T, n)
+    exact = advec.exact_solution_square_wave(x_center - advec.CHAR_SPEED * T, T, n)
     points = {'left1': 0, 'right1': 0, 'left2': 0, 'right2': 0}
     for i in range(0, n):
         if x_center[i] >= -0.82:
