@@ -1,4 +1,5 @@
 import sys
+import os
 
 params = {}
 
@@ -33,4 +34,5 @@ def bootstrap():
         conversion_func = Handlers[name]
         params[name] = conversion_func(value)
 
-    # TODO: check that images_path folder exists
+    if not os.path.isdir(params['images_path']):
+        os.makedirs(params['images_path'])
