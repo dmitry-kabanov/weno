@@ -2,6 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import bootstrap as bs
 import advection as advec
+import weno3
+
+def createWeno3Solver(meshSize):
+    w = weno3.Weno3(
+        advec.a, advec.b,
+        meshSize, advec.flux,
+        advec.flux_deriv,
+        advec.max_flux_deriv,
+        advec.CHAR_SPEED,
+        advec.CFL_NUMBER)
+    return w
 
 def plot_advection_solution(x, solution, ex_solution, T, N, weno_order):
     plt.plot(x, solution, 'o', label=r'WENO, $k = ' + str(weno_order) + r'$')

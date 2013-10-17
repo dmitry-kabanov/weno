@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import advection as advec
+import advection_util as au
 import weno3
 import bootstrap as bs
 
@@ -8,7 +9,7 @@ bs.bootstrap()
 
 N = 320
 
-w = weno3.Weno3(advec.a, advec.b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
+w = au.createWeno3Solver(N)
 x_center = w.get_x_center()
 u0 = advec.initial_condition_square_wave(x_center)
 solution = u0

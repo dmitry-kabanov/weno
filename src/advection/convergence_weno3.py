@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import advection as advec
-import weno3
+import advection_util as au
 import bootstrap as bs
 
 bs.bootstrap()
@@ -12,7 +12,7 @@ T = 1.0
 errorsList = []
 dxList = []
 for n in N:
-    w = weno3.Weno3(advec.a, advec.b, n, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
+    w = au.createWeno3Solver(n)
     x_center = w.get_x_center()
     u0 = advec.initial_condition_sine(x_center)
     solution = w.integrate(u0, T)
