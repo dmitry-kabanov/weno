@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from burgers import burgers
 import weno3
-import burgers
 import bootstrap as bs
 
 bs.bootstrap()
