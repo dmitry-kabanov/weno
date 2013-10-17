@@ -1,18 +1,16 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from advection import advection as advec
+import advection as advec
 import weno2
 import bootstrap as bs
 
 bs.bootstrap()
 
 N = 320
-a = -1.0
-b = 1.0
 
-w = weno2.Weno2(a, b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
+w = weno2.Weno2(advec.a, advec.b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED)
 x_center = w.get_x_center()
-u0 = advec.initial_condition(x_center)
+u0 = advec.initial_condition_square_wave(x_center)
 solution = u0
 
 t = 0.0
@@ -31,7 +29,7 @@ plt.ylabel(r'$u$')
 def init():
     global x_center, u0
     line_numeric.set_data(x_center, u0)
-    line_exact.set_data(x_center, advec.exact_solution(x_center, 0, N))
+    line_exact.set_data(x_center, advec.exact_solution_square_wave(x_center, 0, N))
     time_text.set_text('time = %s' % 0.0)
     return line_numeric, line_exact, time_text
 
@@ -40,7 +38,7 @@ def animate(i):
     global x_center, solution, w
     time = dt * i
     solution = w.integrate(solution, time)
-    exact_soln = advec.exact_solution(x_center - advec.CHAR_SPEED * dt * i, time, N)
+    exact_soln = advec.exact_solution_square_wave(x_center - advec.CHAR_SPEED * dt * i, time, N)
     line_numeric.set_data(x_center, solution)
     line_exact.set_data(x_center, exact_soln)
     time_text.set_text('time = %s' % time)

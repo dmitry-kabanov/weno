@@ -19,12 +19,10 @@ def plot_advection_solution():
 bs.bootstrap()
 
 N = 640
-a = -1.0
 CFL_NUMBER = 0.8
-b = 1.0
 T = 0.5
 
-w = weno3.Weno3(a, b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED, CFL_NUMBER)
+w = weno3.Weno3(advec.a, advec.b, N, advec.flux, advec.flux_deriv, advec.max_flux_deriv, advec.CHAR_SPEED, CFL_NUMBER)
 x_center = w.get_x_center()
 u0 = advec.initial_condition_square_wave(x_center)
 
