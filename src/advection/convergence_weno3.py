@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from advection import advection as advec
+import advection as advec
 import weno3
 import bootstrap as bs
 
