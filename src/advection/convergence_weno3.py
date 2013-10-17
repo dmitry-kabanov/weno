@@ -65,7 +65,7 @@ plt.xlabel(r'$\Delta x$')
 plt.ylabel(r'$L_1$-norm of error')
 plt.legend(loc='upper left')
 # plt.show()
-plt.savefig(bs.params['images_path'] + '/weno3_advection_convergence.eps')
+plt.savefig(bs.params['images_path'] + '/advection_convergence_weno3.eps')
 
 for i in range(0, len(errorsList)):
     print N[i], errorsList[i]
