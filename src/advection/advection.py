@@ -3,6 +3,7 @@ import numpy as np
 a = -1.0
 b = 1.0
 CHAR_SPEED = 1.0
+CFL_NUMBER = 0.8
 
 def flux(val):
     return val
