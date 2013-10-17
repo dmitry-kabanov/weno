@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import scipy.optimize as sco
 import weno2
+import bootstrap as bs
 
+bs.bootstrap()
 
 def flux(val):
     return (val ** 2) / 2.0
@@ -71,4 +73,4 @@ def animate(i):
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=nFrames, interval=20, blit=True)
 
-anim.save('burgers.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+anim.save(bs.params['videos_path'] + 'burgers.mp4', fps=30, extra_args=['-vcodec', 'libx264'])

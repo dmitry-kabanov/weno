@@ -8,6 +8,7 @@ def bootstrap():
 
     Handlers = {
         'images_path': str,
+        'videos_path': str,
     }
 
     config_file_name = 'config'

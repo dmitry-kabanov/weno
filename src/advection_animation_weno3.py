@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import weno2
 import advection as advec
+import bootstrap as bs
 
+bs.bootstrap()
 
 N = 320
 a = -1.0
@@ -47,4 +49,4 @@ def animate(i):
 anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=nFrames, interval=20, blit=True)
 
-anim.save('../../videos/advection_weno3.mp4', fps=30, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
+anim.save(bs.params['videos_path'] + '/advection_weno3.mp4', fps=30, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
