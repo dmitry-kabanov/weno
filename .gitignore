@@ -1,5 +1,6 @@
 *.mp4
 config
+matplotlibrc
 images/
 
 *.py[cod]
