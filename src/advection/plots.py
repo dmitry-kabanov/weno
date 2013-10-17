@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import weno3
 import advection as advec
+import weno3
 import bootstrap as bs
 
 def plot_advection_solution():

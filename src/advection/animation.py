@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from advection import advection as advec
 import weno2
-import advection as advec
 import bootstrap as bs
 
 bs.bootstrap()
