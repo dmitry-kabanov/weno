@@ -37,3 +37,6 @@ def bootstrap():
 
     if not os.path.isdir(params['images_path']):
         os.makedirs(params['images_path'])
+
+    if not os.path.isdir(params['videos_path']):
+        os.makedirs(params['videos_path'])
