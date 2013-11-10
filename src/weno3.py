@@ -37,10 +37,13 @@ class Weno3:
         self.alpha0 = np.zeros(self.N)
         self.alpha1 = np.zeros(self.N)
         self.alpha2 = np.zeros(self.N)
-        self.sum_alpha = np.zeros(self.N)
-        self.omega0 = np.zeros(self.N)
-        self.omega1 = np.zeros(self.N)
-        self.omega2 = np.zeros(self.N)
+        self.alpha0_left = np.zeros(self.N)
+        self.alpha1_left = np.zeros(self.N)
+        self.alpha2_left = np.zeros(self.N)
+        self.sum_alpha_left = np.zeros(self.N)
+        self.omega0_left = np.zeros(self.N)
+        self.omega1_left = np.zeros(self.N)
+        self.omega2_left = np.zeros(self.N)
         self.fFlux = np.zeros(self.N + 1)
         self.rhsValues = np.zeros(self.N)
         self.u_multistage = np.zeros((3, self.N))
@@ -142,16 +145,23 @@ class Weno3:
         self.alpha0 = self.D0 / ((self.EPS + self.beta0) ** 2)
         self.alpha1 = self.D1 / ((self.EPS + self.beta1) ** 2)
         self.alpha2 = self.D2 / ((self.EPS + self.beta2) ** 2)
+        self.alpha0_left = self.D2 / ((self.EPS + self.beta0) ** 2)
+        self.alpha1_left = self.D1 / ((self.EPS + self.beta1) ** 2)
+        self.alpha2_left = self.D0 / ((self.EPS + self.beta2) ** 2)
         self.sum_alpha = self.alpha0 + self.alpha1 + self.alpha2
+        self.sum_alpha_left = self.alpha0_left + self.alpha1_left + self.alpha2_left
         self.omega0 = self.alpha0 / self.sum_alpha
         self.omega1 = self.alpha1 / self.sum_alpha
         self.omega2 = self.alpha2 / self.sum_alpha
+        self.omega0_left = self.alpha0_left / self.sum_alpha_left
+        self.omega1_left = self.alpha1_left / self.sum_alpha_left
+        self.omega2_left = self.alpha2_left / self.sum_alpha_left
         self.u_right_boundary = self.omega0 * self.u_right_boundary_approx[0][:] + \
                            self.omega1 * self.u_right_boundary_approx[1][:] + \
                            self.omega2 * self.u_right_boundary_approx[2][:]
-        self.u_left_boundary = self.omega0 * self.u_left_boundary_approx[0][:] + \
-                          self.omega1 * self.u_left_boundary_approx[1][:] + \
-                          self.omega2 * self.u_left_boundary_approx[2][:]
+        self.u_left_boundary = self.omega0_left * self.u_left_boundary_approx[0][:] + \
+                          self.omega1_left * self.u_left_boundary_approx[1][:] + \
+                          self.omega2_left * self.u_left_boundary_approx[2][:]
 
         # Numerical flux calculation.
         self.fFlux[1:-1] = self.numflux(self.u_right_boundary[0:-1], self.u_left_boundary[1:])
