@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from burgers import burgers as b
+import burgers as b
 import weno3
 import bootstrap as bs
 
