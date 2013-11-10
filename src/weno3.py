@@ -186,3 +186,9 @@ class Weno3:
 
     def get_x_center(self):
         return self.x_center
+
+    def get_x_boundary(self):
+        return self.x_boundary
+
+    def get_dx(self):
+        return self.dx
