@@ -15,9 +15,9 @@ class Weno3:
         self.t = 0.0
         ORDER_OF_SCHEME = 3
         self.EPS = eps
-        self.D0 = 3.0 / 10.0
-        self.D1 = 6.0 / 10.0
-        self.D2 = 1.0 / 10.0
+        # Ideal weights for the right boundary.
+        self.iw_right = np.array([[3.0 / 10.0], [6.0 / 10.0], [1.0 / 10.0]])
+        self.iw_left = np.array([[1.0 / 10.0], [6.0 / 10.0], [3.0 / 10.0]])
         self.flux = flux_callback
         self.flux_deriv = flux_deriv_callback
         self.max_flux_deriv = max_flux_deriv_callback
@@ -31,19 +31,13 @@ class Weno3:
         self.u_left_boundary_approx = np.zeros((ORDER_OF_SCHEME, self.N))
         self.u_right_boundary = np.zeros(self.N)
         self.u_left_boundary = np.zeros(self.N)
-        self.beta0 = np.zeros(self.N)
-        self.beta1 = np.zeros(self.N)
-        self.beta2 = np.zeros(self.N)
-        self.alpha0 = np.zeros(self.N)
-        self.alpha1 = np.zeros(self.N)
-        self.alpha2 = np.zeros(self.N)
-        self.alpha0_left = np.zeros(self.N)
-        self.alpha1_left = np.zeros(self.N)
-        self.alpha2_left = np.zeros(self.N)
+        self.beta = np.zeros((ORDER_OF_SCHEME, self.N))
+        self.alpha_right = np.zeros((ORDER_OF_SCHEME, self.N))
+        self.alpha_left = np.zeros((ORDER_OF_SCHEME, self.N))
+        self.sum_alpha_right = np.zeros(self.N)
         self.sum_alpha_left = np.zeros(self.N)
-        self.omega0_left = np.zeros(self.N)
-        self.omega1_left = np.zeros(self.N)
-        self.omega2_left = np.zeros(self.N)
+        self.omega_right = np.zeros((ORDER_OF_SCHEME, self.N))
+        self.omega_left = np.zeros((ORDER_OF_SCHEME, self.N))
         self.fFlux = np.zeros(self.N + 1)
         self.rhsValues = np.zeros(self.N)
         self.u_multistage = np.zeros((3, self.N))
@@ -108,60 +102,52 @@ class Weno3:
         self.u_left_boundary_approx[1][-1] = 1.0 / 3.0 * u[-2] + 5.0 / 6.0 * u[-1] - 1.0 / 6.0 * u[0]
         self.u_left_boundary_approx[2][-1] = -1.0 / 6.0 * u[-3] + 5.0 / 6.0 * u[-2] + 1.0 / 3.0 * u[-1]
 
-        self.beta0[2:-2] = 13.0 / 12.0 * (u[2:-2] - 2 * u[3:-1] + u[4:]) ** 2 + \
-                           1.0 / 4.0 * (3*u[2:-2] - 4.0 * u[3:-1] + u[4:]) ** 2
-        self.beta1[2:-2] = 13.0 / 12.0 * (u[1:-3] - 2 * u[2:-2] + u[3:-1]) ** 2 + \
-                           1.0 / 4.0 * (u[1:-3] - u[3:-1]) ** 2
-        self.beta2[2:-2] = 13.0 / 12.0 * (u[0:-4] - 2 * u[1:-3] + u[2:-2]) ** 2 + \
+        self.beta[0][2:-2] = 13.0 / 12.0 * (u[2:-2] - 2 * u[3:-1] + u[4:]) ** 2 + \
+                             1.0 / 4.0 * (3*u[2:-2] - 4.0 * u[3:-1] + u[4:]) ** 2
+        self.beta[1][2:-2] = 13.0 / 12.0 * (u[1:-3] - 2 * u[2:-2] + u[3:-1]) ** 2 + \
+                             1.0 / 4.0 * (u[1:-3] - u[3:-1]) ** 2
+        self.beta[2][2:-2] = 13.0 / 12.0 * (u[0:-4] - 2 * u[1:-3] + u[2:-2]) ** 2 + \
                            1.0 / 4.0 * (u[0:-4] - 4.0 * u[1:-3] + 3 * u[2:-2]) ** 2
 
-        self.beta0[0] = 13.0 / 12.0 * (u[0] - 2 * u[1] + u[2]) ** 2 + \
+        self.beta[0][0] = 13.0 / 12.0 * (u[0] - 2 * u[1] + u[2]) ** 2 + \
                            1.0 / 4.0 * (3*u[0] - 4.0 * u[1] + u[2]) ** 2
-        self.beta1[0] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
+        self.beta[1][0] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
                            1.0 / 4.0 * (u[-1] - u[1]) ** 2
-        self.beta2[0] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
+        self.beta[2][0] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
                            1.0 / 4.0 * (u[-2] - 4.0 * u[-1] + 3 * u[0]) ** 2
 
-        self.beta0[1] = 13.0 / 12.0 * (u[1] - 2 * u[2] + u[3]) ** 2 + \
+        self.beta[0][1] = 13.0 / 12.0 * (u[1] - 2 * u[2] + u[3]) ** 2 + \
                         1.0 / 4.0 * (3*u[1] - 4.0 * u[2] + u[3]) ** 2
-        self.beta1[1] = 13.0 / 12.0 * (u[0] - 2 * u[1] + u[2]) ** 2 + \
+        self.beta[1][1] = 13.0 / 12.0 * (u[0] - 2 * u[1] + u[2]) ** 2 + \
                         1.0 / 4.0 * (u[0] - u[2]) ** 2
-        self.beta2[1] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
+        self.beta[2][1] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
                         1.0 / 4.0 * (u[-1] - 4.0 * u[0] + 3 * u[1]) ** 2
 
-        self.beta0[-2] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
+        self.beta[0][-2] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
                         1.0 / 4.0 * (3*u[-2] - 4.0 * u[-1] + u[0]) ** 2
-        self.beta1[-2] = 13.0 / 12.0 * (u[-3] - 2 * u[-2] + u[-1]) ** 2 + \
+        self.beta[1][-2] = 13.0 / 12.0 * (u[-3] - 2 * u[-2] + u[-1]) ** 2 + \
                         1.0 / 4.0 * (u[-3] - u[-1]) ** 2
-        self.beta2[-2] = 13.0 / 12.0 * (u[-4] - 2 * u[-3] + u[-2]) ** 2 + \
+        self.beta[2][-2] = 13.0 / 12.0 * (u[-4] - 2 * u[-3] + u[-2]) ** 2 + \
                         1.0 / 4.0 * (u[-4] - 4.0 * u[-3] + 3 * u[-2]) ** 2
 
-        self.beta0[-1] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
+        self.beta[0][-1] = 13.0 / 12.0 * (u[-1] - 2 * u[0] + u[1]) ** 2 + \
                         1.0 / 4.0 * (3*u[-1] - 4.0 * u[0] + u[1]) ** 2
-        self.beta1[-1] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
+        self.beta[1][-1] = 13.0 / 12.0 * (u[-2] - 2 * u[-1] + u[0]) ** 2 + \
                         1.0 / 4.0 * (u[-2] - u[0]) ** 2
-        self.beta2[-1] = 13.0 / 12.0 * (u[-3] - 2 * u[-2] + u[-1]) ** 2 + \
+        self.beta[2][-1] = 13.0 / 12.0 * (u[-3] - 2 * u[-2] + u[-1]) ** 2 + \
                         1.0 / 4.0 * (u[-3] - 4.0 * u[-2] + 3 * u[-1]) ** 2
-        self.alpha0 = self.D0 / ((self.EPS + self.beta0) ** 2)
-        self.alpha1 = self.D1 / ((self.EPS + self.beta1) ** 2)
-        self.alpha2 = self.D2 / ((self.EPS + self.beta2) ** 2)
-        self.alpha0_left = self.D2 / ((self.EPS + self.beta0) ** 2)
-        self.alpha1_left = self.D1 / ((self.EPS + self.beta1) ** 2)
-        self.alpha2_left = self.D0 / ((self.EPS + self.beta2) ** 2)
-        self.sum_alpha = self.alpha0 + self.alpha1 + self.alpha2
-        self.sum_alpha_left = self.alpha0_left + self.alpha1_left + self.alpha2_left
-        self.omega0 = self.alpha0 / self.sum_alpha
-        self.omega1 = self.alpha1 / self.sum_alpha
-        self.omega2 = self.alpha2 / self.sum_alpha
-        self.omega0_left = self.alpha0_left / self.sum_alpha_left
-        self.omega1_left = self.alpha1_left / self.sum_alpha_left
-        self.omega2_left = self.alpha2_left / self.sum_alpha_left
-        self.u_right_boundary = self.omega0 * self.u_right_boundary_approx[0][:] + \
-                           self.omega1 * self.u_right_boundary_approx[1][:] + \
-                           self.omega2 * self.u_right_boundary_approx[2][:]
-        self.u_left_boundary = self.omega0_left * self.u_left_boundary_approx[0][:] + \
-                          self.omega1_left * self.u_left_boundary_approx[1][:] + \
-                          self.omega2_left * self.u_left_boundary_approx[2][:]
+        self.alpha_right = self.iw_right / ((self.EPS + self.beta) ** 2)
+        self.alpha_left = self.iw_left / ((self.EPS + self.beta) ** 2)
+        self.sum_alpha_right = self.alpha_right[0] + self.alpha_right[1] + self.alpha_right[2]
+        self.sum_alpha_left = self.alpha_left[0] + self.alpha_left[1] + self.alpha_left[2]
+        self.omega_right = self.alpha_right / self.sum_alpha_right
+        self.omega_left = self.alpha_left / self.sum_alpha_left
+        self.u_right_boundary = self.omega_right[0] * self.u_right_boundary_approx[0] + \
+                           self.omega_right[1] * self.u_right_boundary_approx[1] + \
+                           self.omega_right[2] * self.u_right_boundary_approx[2]
+        self.u_left_boundary = self.omega_left[0] * self.u_left_boundary_approx[0] + \
+                          self.omega_left[1] * self.u_left_boundary_approx[1] + \
+                          self.omega_left[2] * self.u_left_boundary_approx[2]
 
         # Numerical flux calculation.
         self.fFlux[1:-1] = self.numflux(self.u_right_boundary[0:-1], self.u_left_boundary[1:])
